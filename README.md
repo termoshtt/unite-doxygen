@@ -7,7 +7,7 @@ unite source of doxygen
 
 ### external commandS
 
-- [Xalan](http://xml.apache.org/xalan-j/) : XSLT interpreter
+- xsltproc: included int [libxslt](http://xmlsoft.org/libxslt/)
 
 ### vim plugins
 
@@ -19,7 +19,7 @@ Usage
 
 0. Prepare your project documented with [Doxygen](http://www.doxygen.org)
 
-0. Install [Xalan](http://xml.apache.org/xalan-j/)
+0. Install [libxslt](http://xmlsoft.org/libxslt/)
 
 1. Create `searchdata.xml` using doxygen:
    Enable (set to 'YES') following options in your `Doxyfile`

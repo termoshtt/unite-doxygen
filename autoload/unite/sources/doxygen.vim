@@ -35,7 +35,7 @@ let s:here = expand('<sfile>:p:h')
 let s:xslt = expand(s:here . "/../../../format.xslt")
 
 function! s:source.gather_candidates(args,context)
-  let result = vimproc#system('Xalan '.g:unite_doxygen_home.'/searchdata.xml '.s:xslt)
+  let result = vimproc#system('xsltproc '.s:xslt.' '.g:unite_doxygen_home.'/searchdata.xml')
   let candidates = []
   for line in split(result, "\n")
     let words = split(line, " ")
