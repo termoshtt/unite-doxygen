@@ -25,7 +25,11 @@
 " Variables
 call unite#util#set_default('g:unite_doxygen_home','')
 
-let s:source = {'name': 'doxygen'}
+let s:source = {
+      \ 'name': 'doxygen',
+      \ 'description' : 'Links for Doxygen HTML',
+      \ 'hooks' : {},
+      \ }
 
 let s:here = expand('<sfile>:p:h')
 let s:xslt = expand(s:here . "/../../../format.xslt")
@@ -41,11 +45,16 @@ function! s:source.gather_candidates(args,context)
     call add(candidates, {"addr":addr, "category":category, "description":description})
   endfor
   return map(candidates,'{
-  \   "word": v:val["description"],
+  \   "word": v:val["category"]." ".v:val["description"],
   \   "source": "doxygen",
   \   "kind": "uri",
   \   "action__uri": "file://".v:val["addr"]
   \ }')
+endfunction
+
+function! s:source.hooks.on_syntax(args, context)
+  syntax match uniteSource__Doxygen_DocType /^\s\+\w\+/
+  highlight uniteSource__Doxygen_DocType ctermfg=green
 endfunction
 
 function! unite#sources#doxygen#define() 
