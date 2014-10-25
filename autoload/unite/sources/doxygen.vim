@@ -35,7 +35,7 @@ function! s:source.gather_candidates(args,context)
   let candidates = []
   for line in split(result, "\n")
     let words = split(line, " ")
-    let addr = words[0]
+    let addr = expand(g:unite_doxygen_home."/html/".words[0])
     let category = words[1]
     let description = join(words[2:], " ")
     call add(candidates, {"addr":addr, "category":category, "description":description})
@@ -43,7 +43,8 @@ function! s:source.gather_candidates(args,context)
   return map(candidates,'{
   \   "word": v:val["description"],
   \   "source": "doxygen",
-  \   "kind": "word"
+  \   "kind": "uri",
+  \   "action__uri": "file://".v:val["addr"]
   \ }')
 endfunction
 
