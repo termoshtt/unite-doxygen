@@ -1,7 +1,6 @@
 "=============================================================================
-" FILE: doxygen.vim
-" AUTHOR:  Toshiki TERAMUREA <toshiki.teramura@gmail.com>
-" Last Modified: 24 Oct 2014
+" FILE: uri_openbrowser.vim
+" AUTHOR:  Toshiki Teramura <toshiki.teramura@gmail.com>
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -24,43 +23,42 @@
 " }}}
 "=============================================================================
 
-" Variables
-call unite#util#set_default('g:unite_doxygen_home','')
+let s:save_cpo = &cpo
+set cpo&vim
 
-let s:source = {
-      \ 'name': 'doxygen',
-      \ 'description' : 'Links for Doxygen HTML',
-      \ 'hooks' : {},
+function! unite#kinds#uri_openbrowser#define() 
+  return s:kind
+endfunction
+
+let s:kind = {
+      \ 'name' : 'uri_openbrowser',
+      \ 'default_action' : 'openbrowser',
+      \ 'action_table' : {},
+      \}
+
+" Actions
+let s:kind.action_table.openbrowser= {
+      \ 'description' : 'open uri by browser (using OpenBrowser)',
+      \ 'is_selectable' : 1,
       \ }
 
-let s:here = expand('<sfile>:p:h')
-let s:xslt = expand(s:here . "/../../../format.xslt")
-
-function! s:source.gather_candidates(args,context)
-  let result = vimproc#system('xsltproc '.s:xslt.' '.g:unite_doxygen_home.'/searchdata.xml')
-  let candidates = []
-  for line in split(result, "\n")
-    let words = split(line, " ")
-    let addr = expand(g:unite_doxygen_home."/html/".words[0])
-    let category = words[1]
-    let description = join(words[2:], " ")
-    call add(candidates, {"addr":addr, "category":category, "description":description})
-  endfor
-  return map(candidates,'{
-  \   "word": v:val["category"]." ".v:val["description"],
-  \   "source": "doxygen",
-  \   "kind": "uri_openbrowser",
-  \   "action__uri": "file://".v:val["addr"]
-  \ }')
-endfunction
-
-function! s:source.hooks.on_syntax(args, context)
-  syntax match uniteSource__Doxygen_DocType /^\s\+\w\+/
-  highlight uniteSource__Doxygen_DocType ctermfg=green
-endfunction
-
-function! unite#sources#doxygen#define() 
-  return s:source
+function! s:get_path(candidate) 
+  let path = has_key(a:candidate, 'action__uri') ?
+        \ a:candidate.action__uri : a:candidate.action__path
+  if unite#util#is_windows() && path =~ '^//'
+    " substitute separator for UNC.
+    let path = substitute(path, '/', '\\', 'g')
+  endif
+  return path
 endfunction 
+
+function! s:kind.action_table.openbrowser.func(candidates) 
+  for candidate in a:candidates
+    call openbrowser#open(s:get_path(candidate))
+  endfor
+endfunction
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
 
 " vim: foldmethod=marker
